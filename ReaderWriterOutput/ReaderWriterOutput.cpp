@@ -1,5 +1,4 @@
 // main the entry point for the console application.
-//
 
 #include "stdafx.h"
 #include <SDL.h>
@@ -28,14 +27,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	readerWriter = SDL_CreateSemaphore(1);
 	mutexR = SDL_CreateSemaphore(1);
 
-	//creates 10 reader and writer threads using semaphores
+	//creates 10 reader and writer threads
 	for (int i = 0; i < 10; i++)
 	{
 		readers.push_back(SDL_CreateThread(Reader, "reader", NULL));
 		writers.push_back(SDL_CreateThread(Writer, "writer", &i));
 	}
 
-	system("pause");
+	system("PAUSE");
 	return 0;
 }
 
@@ -53,16 +52,15 @@ int Reader(void * data)
 		}
 		SDL_SemPost(mutexR);//releases lock
 
-		std::cout << "reading from textfile" << std::endl;
+		std::cout << "Reading from textfile" << std::endl;
 
 		std::fstream myfile("Threads.txt"); //loads our thread txt file
 		std::string line;
-
 		if (myfile.is_open())
 		{
 			while (getline(myfile, line))
 			{
-				std::cout << line << '\n';
+				std::cout << line << '\n' << std::endl;
 			}
 			myfile.close();
 		}
@@ -76,7 +74,8 @@ int Reader(void * data)
 		SDL_SemPost(mutexR);//release mutexR
 
 		//Wait randomly to give writers a chance to acquire lock
-		SDL_Delay(16 + rand() % 640);//lazyfoo master of disaster
+		SDL_Delay(16 + rand() % 1000);
+		//SDL_Delay(1000);
 	}
 	return 0;
 }
@@ -87,18 +86,18 @@ int Writer(void * data)
 	while (true)
 	{
 		SDL_SemWait(readerWriter);//lock readerWriter
-		std::cout << "writing to textfile" << std::endl;
+		std::cout << "Writing to textfile" << std::endl;
 
-		std::fstream myfile;
-		myfile.open("Threads.txt");//Open text file
-		myfile << "Thread is: " << i << std::endl; //Output to text file
+		std::fstream myfile;  //load file to output too
+		myfile.open("Threads.txt");//Opens text file
+		myfile << "Thread is: " << i << std::endl; //Outputs to text file
 		myfile.close();//Close text file
 
 		SDL_SemPost(readerWriter);//releases lock
 
 		//Wait randomly to give writers a chance to acquire lock
-		SDL_Delay(16 + rand() % 640);
+		SDL_Delay(16 + rand() % 1000);
+		//SDL_Delay(1000);
 	}
 	return 0;
 }
-
